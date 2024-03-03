@@ -1,22 +1,52 @@
 
 <template>
   <main>
-    <StoryView :content="contentStory[currentIndex]"/>
-    <div class="btn-container">
-      <button :class="`btn btn-response-${index + 1}`" v-for="(button, index) in contentStory[currentIndex].response" :key="index" @click="showNextContent(index)"><span v-if="currentIndex > 0">{{ index + 1 }}/ </span>{{ button }}</button>
+    <!-- PROGRESSION -->
+    <div v-if="currentIndex != 0" class="progress-bar-container">
+      <div class="progress-bar" :style="{width: `${percentageOfProgress}`}">
+      <span class="percentage">
+        {{ percentageOfProgress }}
+      </span>
+      </div>
     </div>
-    <button v-if="currentIndex !== 0" @click="currentIndex--">Précédent</button>
+
+    <!-- CONTENT -->
+    <div class="content">
+      <StoryView :content="contentStory[currentIndex]"/>
+      <div v-if="currentIndex === contentStory.length - 1 ">Resultat: 
+        <div  style="min-height: 100px; display: block;" v-for="(result, index) in results" :key="index">
+          <br>
+          <p>
+            {{ result.question }}
+          </p>
+          <p>
+            {{ result.response }}
+          </p>
+          <br>
+          <hr>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="btn-container">
+        <button title="Séléctioner" :class="`btn btn-response-${index + 1}`" v-for="(button, index) in contentStory[currentIndex].response" :key="index" @click="showNextContent(index)"><span v-if="currentIndex > 0">{{ index + 1 }}/ </span>{{ button }}</button>
+      </div>
+      <button title="Retour" class="btn-back" v-if="currentIndex !== 0" @click="showPreviousContent">&lt; Précédent</button>
+    </div>
   </main>
 </template>
 
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, onUpdated } from 'vue';
 import StoryView from '@/components/StoryView.vue';
 import type { TContentStory } from '@/types/global';
 
+const currentIndex = ref<number>(0);
+const results = ref();
 
-const contentStory= ref<TContentStory[]>([{
+const contentStory= ref<TContentStory[]>([
+  {
   title: 'Présentation du jeu',
   content: `Marc est cadre dans une grande entreprise. Bien que le succès soit au rendez-vous, il ne se sent pas heureux, il subit sa vie et se sent prisonnier d’une routine étouffante. Ce matin, Marc ressent une lourdeur dans sa poitrine, une sensation familière de mécontentement qui l'envahit dès qu'il pose le pied dans la grisaille matinale de sa ville du Nord. Assis dans le bus, il regarde par la fenêtre ruisselante de pluie les rues qui défilent, grises et monotones, reflétant parfaitement son état d'esprit.
     Au moment de quitter son siège car l’arrêt où il descend comme chaque jour de semaine depuis des années est proche, Marc remarque un petit livre abandonné sur le siège à côté de lui. Intrigué, il le ramasse et découvre qu'il s'agit d'un vieux carnet à la couverture usée. Mais à l'intérieur, les pages vierges attendent d'être remplies de mots, de pensées, de rêves peut-être.
@@ -102,49 +132,150 @@ const contentStory= ref<TContentStory[]>([{
     }, 
   ]
 )
+const sliceOfProgressInit = ref<number>(100 / contentStory.value.length)
+let newPercentage = ref<number>(sliceOfProgressInit.value)
+const percentageOfProgress = ref<string>('')
 
-const currentIndex = ref(0);
+onMounted(() => {
+  localStorage.removeItem('testResults');
+});
 
-const showNextContent = (index: number) => {
+onUpdated(() => {
+  window.scrollTo(0,0)
+})
+
+const showNextContent = (index: number): void => {
   if(currentIndex.value === contentStory.value.length - 1) {
     if(index === 0) currentIndex.value = 1
     else currentIndex.value = 0
+    localStorage.clear()
+    newPercentage.value = sliceOfProgressInit.value
+    percentageOfProgress.value = ''
     return
   }
 
   if (currentIndex.value < contentStory.value.length - 1) {
+    percentageOfProgress.value = `${Math.round(newPercentage.value += sliceOfProgressInit.value)}%`
     currentIndex.value++;
-  }  
+    getResult()
+  }
+
+  setResult(currentIndex.value, index)
 };
+
+const showPreviousContent = () => {
+  percentageOfProgress.value = `${Math.round(newPercentage.value -= sliceOfProgressInit.value)}%`
+  currentIndex.value--
+}
+
+const setResult = (IndexQuestion: number, indexResponse: number) => {
+  const results = JSON.parse(localStorage.getItem('testResults') || '[]');
+  results.push({ question: IndexQuestion, response: indexResponse });
+  localStorage.setItem('testResults', JSON.stringify(results));
+}
+
+const getResult = () => {
+  const savedResults = JSON.parse(localStorage.getItem('testResults') || '[]');
+  results.value = savedResults.map((result: { question: number, response: number }) => {
+    const question = contentStory.value[result.question]
+    const response = question.response && question.response[result.response]
+    return {
+      question: question ? question.title : "Question non trouvée",
+      response: response !== undefined ? response : "Réponse non trouvée"
+    }
+  })
+  console.log(results.value)
+}
+
+
+
+
 </script>
 
 <style>
+main {
+  height: 90vh;
+}
+
+.content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
 .btn-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 10px;
   width: fit-content;
-  margin: auto;
+  margin: 20px auto;
   grid-template-areas: 
     "button_1 button_2"
     "button_3 button_4";
 }
 
+.btn-response-1{
+  grid-area: button_1;
+}
+.btn-response-2{
+  grid-area: button_2;
+}
+.btn-response-3{
+  grid-area: button_3;
+}
+.btn-response-4{
+  grid-area: button_4;
+}
 
-  .btn-response-1{
-    grid-area: button_1;
-  }
-  .btn-response-2{
-    grid-area: button_2;
-  }
-  .btn-response-3{
-    grid-area: button_3;
-  }
-  .btn-response-4{
-    grid-area: button_4;
-  }
+.btn{
+  max-width: 350px;
+  padding: 5px 10px;
+  border-radius: 5px; 
+  background-color: var(--vt-c-indigo);
+  color: black;
+  background-color:  hsla(160, 100%, 37%, 1);
+  box-shadow: 5px 5px 10px rgba(0, 65, 43, 0.49);
+  transition: .2s;
+  cursor: pointer;
+}
+.btn:hover {
+  font-weight: 600;
+  transform: scale(1.02);
+}
 
-  .btn{
-    max-width: 350px;
+.btn-back {
+  text-align: left;
+  cursor: pointer;
+}
+
+.progress-bar-container {
+  position: relative;
+  width: 100%; 
+  height: 15px;
+  background-color: #fff
+}
+
+.progress-bar {
+  height: 15px; 
+  color: #000;
+  border: 1px solid #fff; 
+  background-color: hsla(160, 100%, 37%, 1);
+}
+
+.percentage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: block;
+}
+
+@media screen and (max-width: 600px) {
+  .btn-container {
+    display: flex;
+    flex-direction: column;
   }
+  
+}
 </style>
