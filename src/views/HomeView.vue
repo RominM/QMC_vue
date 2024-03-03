@@ -11,7 +11,8 @@
     </div>
 
     <!-- CONTENT -->
-    <div class="content">
+    <transition name="fade" @after-enter="scrollToTop">
+    <div v-if="contentStory" class="content">
       <StoryView :content="contentStory[currentIndex]"/>
       <div v-if="currentIndex === contentStory.length - 1 ">Resultat: 
         <div  style="min-height: 100px; display: block;" v-for="(result, index) in results" :key="index">
@@ -33,6 +34,7 @@
       </div>
       <button title="Retour" class="btn-back" v-if="currentIndex !== 0" @click="showPreviousContent">&lt; Précédent</button>
     </div>
+  </transition>
   </main>
 </template>
 
@@ -144,13 +146,17 @@ onUpdated(() => {
   window.scrollTo(0,0)
 })
 
+const scrollToTop = () => {
+  window.scrollTo(0,0)
+}
+
 const showNextContent = (index: number): void => {
   if(currentIndex.value === contentStory.value.length - 1) {
     if(index === 0) currentIndex.value = 1
     else currentIndex.value = 0
     localStorage.clear()
-    newPercentage.value = sliceOfProgressInit.value
-    percentageOfProgress.value = ''
+    newPercentage.value = index === 0 ? sliceOfProgressInit.value * 2 : sliceOfProgressInit.value
+    percentageOfProgress.value = `${Math.round(newPercentage.value)}%`
     return
   }
 
@@ -194,7 +200,12 @@ const getResult = () => {
 
 <style>
 main {
-  height: 90vh;
+  height: 80vh;
+  margin: 20px 0;
+}
+
+.fade-enter-active {
+  transition: opacity 5s;
 }
 
 .content {
