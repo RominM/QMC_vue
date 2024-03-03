@@ -1,19 +1,22 @@
 
 <template>
   <main>
-    <div v-for="(content, i) in contentStory" :key="`content-${i}`">
-      <StoryView :content="content"/>
+    <StoryView :content="contentStory[currentIndex]"/>
+    <div class="btn-container">
+      <button :class="`btn btn-response-${index + 1}`" v-for="(button, index) in contentStory[currentIndex].response" :key="index" @click="showNextContent(index)"><span v-if="currentIndex > 0">{{ index + 1 }}/ </span>{{ button }}</button>
     </div>
-</main>
+    <button v-if="currentIndex !== 0" @click="currentIndex--">Précédent</button>
+  </main>
 </template>
 
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import StoryView from '@/components/StoryView.vue';
 import type { TContentStory } from '@/types/global';
 
 
-const contentStory: TContentStory[] = [{
+const contentStory= ref<TContentStory[]>([{
   title: 'Présentation du jeu',
   content: `Marc est cadre dans une grande entreprise. Bien que le succès soit au rendez-vous, il ne se sent pas heureux, il subit sa vie et se sent prisonnier d’une routine étouffante. Ce matin, Marc ressent une lourdeur dans sa poitrine, une sensation familière de mécontentement qui l'envahit dès qu'il pose le pied dans la grisaille matinale de sa ville du Nord. Assis dans le bus, il regarde par la fenêtre ruisselante de pluie les rues qui défilent, grises et monotones, reflétant parfaitement son état d'esprit.
     Au moment de quitter son siège car l’arrêt où il descend comme chaque jour de semaine depuis des années est proche, Marc remarque un petit livre abandonné sur le siège à côté de lui. Intrigué, il le ramasse et découvre qu'il s'agit d'un vieux carnet à la couverture usée. Mais à l'intérieur, les pages vierges attendent d'être remplies de mots, de pensées, de rêves peut-être.
@@ -29,8 +32,10 @@ const contentStory: TContentStory[] = [{
       Après avoir pris conscience de cela, une lueur d'espoir anime son regard...
       Quelle croyance aidante pourrait lui redonner confiance en lui, lui permettant de croire qu'il est encore possible de poursuivre son rêve aujourd'hui ?`,
     response:[
-      `"Le succès et la sécurité sont le fruit de la persévérance et de l'authenticité dans la poursuite de mes aspirations, même en dehors des sentiers battus."`,
-      "2","3","4"
+      `"Le succès et la sécurité sont le fruit de la persévérance et de l'authenticité dans la poursuite de mes aspirations, même en dehors des sentiers battus"`,
+      `"Le succès et la sécurité sont le fruit de la persévérance et de l'authenticité dans la poursuite de mes aspirations, même en dehors des sentiers battus"`,
+      `"Le succès et la sécurité sont le fruit de la persévérance et de l'authenticité dans la poursuite de mes aspirations, même en dehors des sentiers battus"`,
+      `"Le succès et la sécurité sont le fruit de la persévérance et de l'authenticité dans la poursuite de mes aspirations, même en dehors des sentiers battus"`,
     ]
   },
   {
@@ -40,8 +45,10 @@ const contentStory: TContentStory[] = [{
       Marc réalise qu’il a longtemps cru que s’il s’autorisait à être pleinement lui, alors il serait rejeté. Et cette peur d’être jugé l’a retenu prisonnier d'une vie qui ne lui correspond pas vraiment. Il prend conscience que pour avancer, il doit apprendre à se libérer de l'emprise du regard des autres et à suivre sa propre voie, même si cela signifie affronter l'opposition et le scepticisme.Quelle croyance aidante incitera Marc à surmonter sa peur du jugement pour embrasser pleinement son authenticité et suivre ses aspirations les plus profondes ?`,
     response: [
       `"En étant pleinement moi-même, j'attire les bonnes personnes et les bonnes opportunités dans ma vie, créant ainsi des connexions authentiques et significatives."`,
-      "2","3","4"
-      ]
+      `"En étant pleinement moi-même, j'attire les bonnes personnes et les bonnes opportunités dans ma vie, créant ainsi des connexions authentiques et significatives."`,
+      `"En étant pleinement moi-même, j'attire les bonnes personnes et les bonnes opportunités dans ma vie, créant ainsi des connexions authentiques et significatives."`,
+      `"En étant pleinement moi-même, j'attire les bonnes personnes et les bonnes opportunités dans ma vie, créant ainsi des connexions authentiques et significatives."`,
+    ]
   },
   {
     title: 'Chapitre 3 : Les Doutes sur la Reconversion',
@@ -51,7 +58,9 @@ const contentStory: TContentStory[] = [{
       Quelle croyance aidante pour que Marc surmonte ses doutes et ses peurs afin d’ embrasser pleinement sa reconversion et saisir l'opportunité qui s'offre à lui ?`,
     response: [
       `“Beaucoup de personnes vivent de leur passion honnêtement, et moi aussi j'y ai droit”`,
-      "2","3","4"
+      `“Beaucoup de personnes vivent de leur passion honnêtement, et moi aussi j'y ai droit”`,
+      `“Beaucoup de personnes vivent de leur passion honnêtement, et moi aussi j'y ai droit”`,
+      `“Beaucoup de personnes vivent de leur passion honnêtement, et moi aussi j'y ai droit”`,
     ]
   },
   {
@@ -63,7 +72,9 @@ const contentStory: TContentStory[] = [{
       Quelle croyance aidante peut permettre à Marc de trouver l'équilibre entre ses propres aspirations et les attentes de sa famille, tout en restant fidèle à lui-même et à ses rêves les plus profonds ?`,
     response: [
       `“Je peux respecter et honorer les membres de ma famille tout en restant fidèle à moi-même et en suivant mes propres désirs et aspirations.”`,
-      "2","3","4"
+      `“Je peux respecter et honorer les membres de ma famille tout en restant fidèle à moi-même et en suivant mes propres désirs et aspirations.”`,
+      `“Je peux respecter et honorer les membres de ma famille tout en restant fidèle à moi-même et en suivant mes propres désirs et aspirations.”`,
+      `“Je peux respecter et honorer les membres de ma famille tout en restant fidèle à moi-même et en suivant mes propres désirs et aspirations.”`,
     ]
   }, 
   {
@@ -75,9 +86,65 @@ const contentStory: TContentStory[] = [{
       Malgré ses doutes, Marc reste optimiste quant aux possibilités qui s'offrent à lui. Il a réalisé désormais qu’il était capable de modifier sa façon de voir la vie. Il sait que l'amour véritable est un voyage qui demande du temps, de la patience et de la vulnérabilité. Il est prêt à explorer ce nouveau territoire de son être avec ouverture et courage.
       Avec quelle croyance aidante Marc arrivera-t-il à s’ ouvrir à l’amour?`,
       response: [
-      `“Je mérite d'être aimé et accepté pour qui je suis, avec toutes mes qualités et mes imperfections.“`,
-      "2","3","4"
-    ]
+        `“Je mérite d'être aimé et accepté pour qui je suis, avec toutes mes qualités et mes imperfections.“`,
+        `“Je mérite d'être aimé et accepté pour qui je suis, avec toutes mes qualités et mes imperfections.“`,
+        `“Je mérite d'être aimé et accepté pour qui je suis, avec toutes mes qualités et mes imperfections.“`,
+        `“Je mérite d'être aimé et accepté pour qui je suis, avec toutes mes qualités et mes imperfections.“`,
+      ]
+    },
+    {
+      title: 'Merci de votre participation',
+      content: `Voici une description de votre résultat`,
+      response: [
+        `“Recomencer le test”`,
+        `Retourner au menu`,
+      ]
+    }, 
+  ]
+)
 
-}]
+const currentIndex = ref(0);
+
+const showNextContent = (index: number) => {
+  if(currentIndex.value === contentStory.value.length - 1) {
+    if(index === 0) currentIndex.value = 1
+    else currentIndex.value = 0
+    return
+  }
+
+  if (currentIndex.value < contentStory.value.length - 1) {
+    currentIndex.value++;
+  }  
+};
 </script>
+
+<style>
+.btn-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 10px;
+  width: fit-content;
+  margin: auto;
+  grid-template-areas: 
+    "button_1 button_2"
+    "button_3 button_4";
+}
+
+
+  .btn-response-1{
+    grid-area: button_1;
+  }
+  .btn-response-2{
+    grid-area: button_2;
+  }
+  .btn-response-3{
+    grid-area: button_3;
+  }
+  .btn-response-4{
+    grid-area: button_4;
+  }
+
+  .btn{
+    max-width: 350px;
+  }
+</style>

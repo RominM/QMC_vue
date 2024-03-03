@@ -2,7 +2,6 @@
     <div v-if="props.content">
         <h1>{{ props.content.title }}</h1>
         <p>{{ props.content.content }}</p>
-        <button v-for="(response, index) in props.content.response" :key="index">{{ response }}</button>
     </div>
 </template>
 
