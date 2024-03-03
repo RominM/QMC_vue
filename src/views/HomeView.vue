@@ -32,7 +32,7 @@
       <div class="btn-container">
         <button title="Séléctioner" :class="`btn btn-response-${index + 1}`" v-for="(button, index) in contentStory[currentIndex].response" :key="index" @click="showNextContent(index)"><span v-if="currentIndex > 0">{{ index + 1 }}/ </span>{{ button }}</button>
       </div>
-      <button title="Retour" class="btn-back" v-if="currentIndex !== 0" @click="showPreviousContent">&lt; Précédent</button>
+      <button title="Retour" class="btn-back" v-if="currentIndex !== 0 && currentIndex !== contentStory.length - 1" @click="showPreviousContent">&lt; Précédent</button>
     </div>
   </transition>
   </main>
@@ -200,7 +200,7 @@ const getResult = () => {
 
 <style>
 main {
-  height: 80vh;
+  min-height: 80vh;
   margin: 20px 0;
 }
 
@@ -209,7 +209,7 @@ main {
 }
 
 .content {
-  height: 100%;
+  min-height: 80vh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
