@@ -2,18 +2,11 @@
 <template>
   <main>
     <!-- PROGRESSION -->
-    <div v-if="currentIndex != 0" class="progress-bar-container">
-      <div class="progress-bar" :style="{width: `${percentageOfProgress}`}">
-      <span class="percentage">
-        {{ percentageOfProgress }}
-      </span>
-      </div>
-    </div>
+    <progress-bar v-if="percentageOfProgress" :length="contentStory.length" :progress="percentageOfProgress"/>
 
     <!-- CONTENT -->
-    <transition name="fade" @after-enter="scrollToTop">
     <div v-if="contentStory" class="content">
-      <StoryView :content="contentStory[currentIndex]"/>
+      <story-view :content="contentStory[currentIndex]"/>
       <div v-if="currentIndex === contentStory.length - 1 ">Resultat: 
         <div  style="min-height: 100px; display: block;" v-for="(result, index) in results" :key="index">
           <br>
@@ -27,21 +20,21 @@
           <hr>
         </div>
       </div>
+    </div>
 
       <!-- ACTIONS -->
       <div class="btn-container">
         <button title="Séléctioner" :class="`btn btn-response-${index + 1}`" v-for="(button, index) in contentStory[currentIndex].response" :key="index" @click="showNextContent(index)"><span v-if="currentIndex > 0">{{ index + 1 }}/ </span>{{ button }}</button>
       </div>
       <button title="Retour" class="btn-back" v-if="currentIndex !== 0 && currentIndex !== contentStory.length - 1" @click="showPreviousContent">&lt; Précédent</button>
-    </div>
-  </transition>
   </main>
 </template>
 
 
 <script setup lang="ts">
 import { ref, onMounted, onUpdated } from 'vue';
-import StoryView from '@/components/StoryView.vue';
+import StoryView from '@/components/story-view.vue';
+import progressBar from '@/components/progress-bar.vue';
 import type { TContentStory } from '@/types/global';
 
 const currentIndex = ref<number>(0);
@@ -146,10 +139,6 @@ onUpdated(() => {
   window.scrollTo(0,0)
 })
 
-const scrollToTop = () => {
-  window.scrollTo(0,0)
-}
-
 const showNextContent = (index: number): void => {
   if(currentIndex.value === contentStory.value.length - 1) {
     if(index === 0) currentIndex.value = 1
@@ -200,7 +189,10 @@ const getResult = () => {
 
 <style>
 main {
-  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 90vh;
   margin: 20px 0;
 }
 
@@ -209,7 +201,6 @@ main {
 }
 
 .content {
-  min-height: 80vh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
